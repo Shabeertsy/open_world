@@ -57,7 +57,6 @@ export class World {
     window.addEventListener("keydown", this.keyDown); window.addEventListener("keyup", this.keyUp); window.addEventListener("resize", this.resize);
     this.renderer.domElement.addEventListener("pointerdown", this.pointerDown); this.renderer.domElement.addEventListener("pointermove", this.pointerMove); this.renderer.domElement.addEventListener("pointerup", this.pointerUp); this.renderer.domElement.addEventListener("pointercancel", this.pointerUp);
     this.resize(); this.animate();
-    this.resize(); this.animate();
   }
 
   private updateSun() {
