@@ -29,6 +29,9 @@ export class World {
     ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; this.scene.add(ground);
     this.player.position.set(this.position.x, this.position.y, this.position.z); this.scene.add(this.player);
     for (let i = -3; i <= 3; i++) this.addLandmark(i * 13, (i % 2 ? 12 : -15));
+    for (let i = 0; i < 30; i++) this.addRock((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+    for (let i = 0; i < 40; i++) this.addBush((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+    for (let i = 0; i < 15; i++) this.addCloud((Math.random() - 0.5) * 100, 15 + Math.random() * 10, (Math.random() - 0.5) * 100);
     window.addEventListener("keydown", this.keyDown); window.addEventListener("keyup", this.keyUp); window.addEventListener("resize", this.resize);
     this.renderer.domElement.addEventListener("pointerdown", this.pointerDown); this.renderer.domElement.addEventListener("pointermove", this.pointerMove); this.renderer.domElement.addEventListener("pointerup", this.pointerUp); this.renderer.domElement.addEventListener("pointercancel", this.pointerUp);
     this.resize(); this.animate();
@@ -36,9 +39,39 @@ export class World {
 
   private addLandmark(x: number, z: number) {
     const tree = new THREE.Group();
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.35, .45, 2), new THREE.MeshStandardMaterial({ color: "#795548" })); trunk.position.y = 1;
-    const leaves = new THREE.Mesh(new THREE.ConeGeometry(2, 5, 8), new THREE.MeshStandardMaterial({ color: "#246b3a" })); leaves.position.y = 4;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.35, .45, 2), new THREE.MeshStandardMaterial({ color: "#795548" })); trunk.position.y = 1; trunk.castShadow = true; trunk.receiveShadow = true;
+    const leaves = new THREE.Mesh(new THREE.ConeGeometry(2, 5, 8), new THREE.MeshStandardMaterial({ color: "#246b3a" })); leaves.position.y = 4; leaves.castShadow = true; leaves.receiveShadow = true;
     tree.add(trunk, leaves); tree.position.set(x, 0, z); this.scene.add(tree);
+  }
+  private addRock(x: number, z: number) {
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(Math.random() * 0.8 + 0.4), new THREE.MeshStandardMaterial({ color: "#8a9597", roughness: 0.9 }));
+    rock.position.set(x, Math.random() * 0.3, z);
+    rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    rock.castShadow = true; rock.receiveShadow = true;
+    this.scene.add(rock);
+  }
+  private addBush(x: number, z: number) {
+    const bush = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({ color: "#3d8c40", roughness: 0.9 });
+    for (let i = 0; i < 4; i++) {
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(Math.random() * 0.5 + 0.5, 8, 8), material);
+      leaf.position.set((Math.random() - 0.5) * 0.8, Math.random() * 0.5 + 0.2, (Math.random() - 0.5) * 0.8);
+      leaf.castShadow = true; leaf.receiveShadow = true;
+      bush.add(leaf);
+    }
+    bush.position.set(x, 0, z);
+    this.scene.add(bush);
+  }
+  private addCloud(x: number, y: number, z: number) {
+    const cloud = new THREE.Group();
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, transparent: true, opacity: 0.8 });
+    for (let i = 0; i < 5; i++) {
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(Math.random() * 2 + 1.5, 12, 12), material);
+      puff.position.set((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 4);
+      cloud.add(puff);
+    }
+    cloud.position.set(x, y, z);
+    this.scene.add(cloud);
   }
   private createCharacter(color: number) {
     const character = new THREE.Group();
