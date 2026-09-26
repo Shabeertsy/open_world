@@ -136,7 +136,8 @@ export class Character {
   public group = new THREE.Group();
   private mixer?: THREE.AnimationMixer;
   private actions: Record<string, THREE.AnimationAction> = {};
-  private isWalking = false;
+  private currentAction?: THREE.AnimationAction;
+  private currentActionName = "idle";
 
   constructor(gltfLoader: GLTFLoader, primaryColorHex: number) {
     gltfLoader.load('/Xbot.glb', (gltf) => {
@@ -376,29 +377,57 @@ export class Character {
       });
 
       const idle = this.actions["idle"];
-      if (idle) idle.play();
+      if (idle) {
+        idle.play();
+        this.currentAction = idle;
+        this.currentActionName = "idle";
+      }
     });
 
     this.group.scale.set(0.85, 0.85, 0.85);
   }
 
-  public update(dt: number, walking: boolean) {
+  public update(dt: number, walking: boolean, running = false) {
     if (this.mixer) this.mixer.update(dt);
+    if (!this.mixer) return;
 
-    const walkAction = this.actions["run"] || this.actions["walk"];
-    const idleAction = this.actions["idle"];
+    let targetName = "idle";
+    if (walking) {
+      targetName = running ? "run" : "walk";
+    }
 
-    if (walking && !this.isWalking) {
-      this.isWalking = true;
-      if (walkAction && idleAction) {
-        walkAction.reset().play();
-        walkAction.crossFadeFrom(idleAction, 0.2, true);
-      }
-    } else if (!walking && this.isWalking) {
-      this.isWalking = false;
-      if (walkAction && idleAction) {
-        idleAction.reset().play();
-        idleAction.crossFadeFrom(walkAction, 0.2, true);
+    if (!this.currentAction && this.actions["idle"]) {
+      this.currentAction = this.actions["idle"];
+      this.currentAction.play();
+      this.currentActionName = "idle";
+    }
+
+    if (this.currentActionName !== targetName) {
+      const prevAction = this.currentAction;
+      const nextAction = this.actions[targetName] || this.actions["walk"] || this.actions["run"];
+
+      if (nextAction && nextAction !== prevAction) {
+        // Pacing adjustments for walking vs running
+        if (targetName === "run") {
+          nextAction.timeScale = 1.22;
+        } else if (targetName === "walk") {
+          nextAction.timeScale = 1.08;
+        } else {
+          nextAction.timeScale = 1.0;
+        }
+
+        nextAction.enabled = true;
+        nextAction.setEffectiveTimeScale(nextAction.timeScale);
+        nextAction.setEffectiveWeight(1.0);
+        nextAction.reset();
+        nextAction.play();
+
+        if (prevAction) {
+          nextAction.crossFadeFrom(prevAction, 0.2, true);
+        }
+
+        this.currentAction = nextAction;
+        this.currentActionName = targetName;
       }
     }
   }
