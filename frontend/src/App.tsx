@@ -425,6 +425,32 @@ export default function App() {
       <div ref={worldRef} className="canvas" />
       <div className="crosshair">+</div>
 
+      {/* Landscape / Fullscreen toggle — only visible in portrait on mobile */}
+      <button
+        type="button"
+        className="landscape-btn"
+        title="Switch to landscape fullscreen"
+        onClick={async () => {
+          try {
+            // Request fullscreen first
+            if (document.documentElement.requestFullscreen) {
+              await document.documentElement.requestFullscreen();
+            }
+            // Then lock to landscape
+            const orient = (screen as any).orientation;
+            if (orient?.lock) {
+              await orient.lock("landscape");
+            }
+          } catch {
+            // Fallback: just prompt user to rotate manually
+            alert("Rotate your phone sideways for the best experience! 🔄");
+          }
+        }}
+      >
+        <span style={{ fontSize: "1rem" }}>⟳</span>
+        LANDSCAPE
+      </button>
+
       {/* 1. HORIZONTAL COMPASS BAR IN MOST TOP */}
       <div className="top-compass-container">
         <div className="top-heading-pill">

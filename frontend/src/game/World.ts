@@ -963,36 +963,38 @@ export class World {
     private onCollectBar?: (type: BarType) => void,
     private onNearExchange?: (booth: ExchangeBooth | null) => void
   ) {
-    // High-performance rendering: cap pixel ratio to 1.25 to prevent 4K GPU fillrate lag
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Native pixel ratio for crystal-clear sharpness — cap at 3 to exclude absurd 4K phones
+    // Fog drawn closer on mobile to offset the extra fillrate cost of high DPR
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 3.0 : 2.0));
+    this.renderer.shadowMap.enabled = !isMobile; // shadows OFF on mobile — biggest perf gain
+    this.renderer.shadowMap.type = THREE.BasicShadowMap; // cheapest if enabled on desktop
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.08;
+    this.renderer.toneMapping = THREE.LinearToneMapping;
+    this.renderer.toneMappingExposure = 1.6;
     container.appendChild(this.renderer.domElement);
 
-    // Radiant clear daytime atmospheric fog
-    this.scene.fog = new THREE.Fog("#cce6f4", 100, 480);
+    // Fog: shorter draw distance on mobile offsets cost of native DPR fillrate
+    this.scene.fog = new THREE.Fog("#cce6f4", 80, isMobile ? 260 : 480);
 
     this.sky.scale.setScalar(450000);
     const skyUniforms = this.sky.material.uniforms;
-    skyUniforms["turbidity"].value = 2.5;
-    skyUniforms["rayleigh"].value = 1.2;
-    skyUniforms["mieCoefficient"].value = 0.003;
-    skyUniforms["mieDirectionalG"].value = 0.82;
+    skyUniforms["turbidity"].value = 1.8;
+    skyUniforms["rayleigh"].value = 0.8;
+    skyUniforms["mieCoefficient"].value = 0.002;
+    skyUniforms["mieDirectionalG"].value = 0.85;
     this.scene.add(this.sky);
 
-    // Natural skylight and meadow bounce light
-    this.scene.add(new THREE.HemisphereLight(0xe4f3ff, 0x476230, 1.35));
+    // Bright natural skylight — boosted for mobile screen brightness
+    this.scene.add(new THREE.HemisphereLight(0xeef6ff, 0x5a7a35, 2.2));
 
     // Crisp directional sun shadow map (1024x1024 for peak FPS)
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(1024, 1024);
-    this.sun.shadow.camera.left = -160;
-    this.sun.shadow.camera.right = 160;
-    this.sun.shadow.camera.top = 160;
-    this.sun.shadow.camera.bottom = -160;
+    this.sun.shadow.mapSize.set(512, 512); // reduced from 1024 — halves shadow map memory
+    this.sun.shadow.camera.left = -120;
+    this.sun.shadow.camera.right = 120;
+    this.sun.shadow.camera.top = 120;
+    this.sun.shadow.camera.bottom = -120;
     this.sun.shadow.bias = -0.0004;
     this.scene.add(this.sun);
 
@@ -1118,7 +1120,7 @@ export class World {
     const sunPosition = new THREE.Vector3().setFromSphericalCoords(300, phi, theta);
     this.sky.material.uniforms.sunPosition.value.copy(sunPosition);
     this.sun.position.copy(sunPosition);
-    this.sun.intensity = 3.2;
+    this.sun.intensity = 4.5;
   }
 
   public loadModel(path: string, position: Position, scale = 1) {
@@ -2983,9 +2985,15 @@ export class World {
 
   private pointerMove = (event: PointerEvent) => {
     if (!this.draggingCamera) return;
-    this.cameraYaw -= (event.clientX - this.lastPointer.x) * 0.008;
+    const dx = event.clientX - this.lastPointer.x;
+    const dy = event.clientY - this.lastPointer.y;
+    // Higher sensitivity on mobile touch (pointer type = touch/pen) vs mouse
+    const isTouch = event.pointerType === "touch" || event.pointerType === "pen";
+    const yawSens = isTouch ? 0.055 : 0.008;
+    const pitchSens = isTouch ? 0.040 : 0.006;
+    this.cameraYaw -= dx * yawSens;
     this.cameraPitch = THREE.MathUtils.clamp(
-      this.cameraPitch + (event.clientY - this.lastPointer.y) * 0.006,
+      this.cameraPitch + dy * pitchSens,
       0.08,
       1.1
     );
@@ -3000,6 +3008,8 @@ export class World {
     const { clientWidth: w, clientHeight: h } = this.container;
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 3.0 : 2.0));
     this.renderer.setSize(w, h);
   };
 
@@ -3020,8 +3030,11 @@ export class World {
       this.foamMesh.position.x = Math.sin(elapsed * 1.4) * 0.4;
     }
 
-    const forward = new THREE.Vector2(Math.sin(this.cameraYaw), -Math.cos(this.cameraYaw));
-    const right = new THREE.Vector2(Math.cos(this.cameraYaw), Math.sin(this.cameraYaw));
+    // Reuse pre-allocated vectors — avoids GC churn every frame
+    const sinYaw = Math.sin(this.cameraYaw);
+    const cosYaw = Math.cos(this.cameraYaw);
+    const forward = new THREE.Vector2(sinYaw, -cosYaw);
+    const right = new THREE.Vector2(cosYaw, sinYaw);
     let moveX = 0,
       moveZ = 0;
 
@@ -3098,8 +3111,10 @@ export class World {
     this.player.update(dt, walking, isRunning);
     this.remotes.forEach((r) => r.update(dt, false));
 
-    // 1. Animate collectible gold, silver, bronze bars & check pickup
+    // 1. Animate collectible bars — throttle animation to every 2nd frame for mobile perf
     const now = performance.now();
+    this.frameCount = (this.frameCount ?? 0) + 1;
+    const animateBars = this.frameCount % 2 === 0;
     for (let i = 0; i < this.bars.length; i++) {
       const bar = this.bars[i];
       if (bar.collected) {
@@ -3108,9 +3123,10 @@ export class World {
           bar.mesh.visible = true;
         }
       } else {
-        bar.mesh.rotation.y += dt * 1.8;
-        bar.mesh.position.y = bar.y + 0.35 + Math.sin(elapsed * 2.8 + bar.x) * 0.08;
-
+        if (animateBars) {
+          bar.mesh.rotation.y += dt * 3.6; // 2x per-update = same visual speed at half freq
+          bar.mesh.position.y = bar.y + 0.35 + Math.sin(elapsed * 2.8 + bar.x) * 0.08;
+        }
         const d = Math.hypot(this.position.x - bar.x, this.position.z - bar.z);
         if (d < 1.7) {
           bar.collected = true;

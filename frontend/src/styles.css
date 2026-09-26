@@ -1724,3 +1724,466 @@ small {
   border-color: #fde047;
   box-shadow: 0 0 8px #38bdf8;
 }
+
+/* ==========================================================================
+   MOBILE LAYOUT OVERRIDES (≤ 768px)
+   Fixes all overlapping UI elements on phone screens
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* ── TOP COMPASS: smaller pill, no biome text overflow ── */
+  .top-compass-container {
+    top: 8px;
+    gap: 4px;
+    max-width: calc(100vw - 160px); /* leave room for currency HUD */
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .top-heading-pill {
+    padding: 3px 10px;
+    gap: 5px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .top-heading-pill .heading-deg {
+    font-size: 0.8rem;
+  }
+
+  .top-heading-pill .heading-biome {
+    display: none; /* hide biome in pill — shown on minimap footer */
+  }
+
+  .top-heading-pill .heading-divider {
+    display: none;
+  }
+
+  .top-heading-pill .heading-speed-badge {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+  }
+
+  .top-compass-bar {
+    display: none; /* compass tape hidden on mobile, saves vertical space */
+  }
+
+  /* ── CURRENCY HUD: top-right, smaller ── */
+  .top-right-currency-hud {
+    top: 8px;
+    right: 10px;
+  }
+
+  .currency-pill-card {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .op-token-item .token-icon,
+  .bar-icon {
+    font-size: 0.72rem;
+  }
+
+  .op-token-item .token-amount,
+  .bar-count {
+    font-size: 0.7rem;
+  }
+
+  .op-token-item .token-ticker {
+    font-size: 0.55rem;
+  }
+
+  .currency-divider {
+    height: 16px;
+  }
+
+  /* ── MINIMAP: compact, top-left, out of the way ── */
+  .left-minimap-card {
+    top: 46px;
+    left: 6px;
+    width: 86px;
+    padding: 4px 6px;
+    gap: 3px;
+    border-radius: 12px;
+  }
+
+  .minimap-dial {
+    width: 72px;
+    height: 72px;
+  }
+
+  .map-cardinal {
+    font-size: 0.55rem;
+  }
+
+  .minimap-hint {
+    display: none; /* no room on mobile */
+  }
+
+  .minimap-coords {
+    font-size: 0.6rem;
+  }
+
+  .minimap-title {
+    font-size: 0.62rem;
+  }
+
+  .minimap-footer {
+    gap: 2px;
+  }
+
+  .footer-tag {
+    font-size: 0.62rem;
+  }
+
+  /* ── PROFILE CARD: collapse to a tiny bottom-left icon ── */
+  .bottom-left-profile {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    gap: 2px;
+    max-width: 140px;
+  }
+
+  /* Hide verbose text on mobile profile card */
+  .bottom-left-profile img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bottom-left-profile strong {
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+  }
+
+  /* Hide username, status, and instructions on mobile */
+  .bottom-left-profile span {
+    display: none;
+  }
+
+  .bottom-left-profile button {
+    margin-top: 3px;
+    padding: 5px 8px;
+    font-size: 0.68rem;
+    border-radius: 7px;
+  }
+
+  /* ── RIGHT TOUCH HUD: anchor to bottom-right with safe area ── */
+  .right-touch-hud {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: 10px;
+    gap: 10px;
+  }
+
+  /* RUN + JUMP buttons: slightly smaller */
+  .touch-action-btn {
+    width: 54px;
+    height: 54px;
+  }
+
+  .touch-actions-row {
+    gap: 10px;
+  }
+
+  .btn-label,
+  .jump-label {
+    font-size: 0.58rem;
+  }
+
+  .btn-sublabel {
+    font-size: 0.44rem;
+  }
+
+  .btn-icon,
+  .jump-arrow {
+    font-size: 13px;
+  }
+
+  /* Joystick: slightly smaller on mobile */
+  .joystick-base {
+    width: 116px;
+    height: 116px;
+  }
+
+  .joystick-inner-ring {
+    width: 68px;
+    height: 68px;
+  }
+
+  .joystick-hint {
+    font-size: 0.58rem;
+  }
+
+  /* ── CROSSHAIR: smaller on mobile ── */
+  .crosshair {
+    font-size: 18px;
+  }
+
+  /* ── PICKUP TOAST: center bottom ── */
+  .pickup-toast {
+    bottom: calc(200px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    right: unset;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    padding: 7px 14px;
+  }
+
+  /* ── EXCHANGE PROXIMITY PROMPT: below currency HUD ── */
+  .near-exchange-prompt-btn {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+
+  /* ── FULL MAP MODAL: full-screen on mobile ── */
+  .full-map-modal {
+    width: 96vw;
+    max-width: 96vw;
+    height: 88vh;
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .map-viewport {
+    height: calc(88vh - 130px);
+  }
+
+  .map-modal-footer {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .map-legend {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  /* ── EXCHANGE MODAL: full-screen on mobile ── */
+  .exchange-modal {
+    width: 94vw;
+    max-height: 85vh;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .exchange-cards-grid {
+    gap: 8px;
+  }
+
+  .exchange-trade-card {
+    padding: 10px;
+  }
+
+  .trade-actions-btns {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .trade-btn {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+  }
+}
+
+
+/* ==========================================================================
+   LANDSCAPE MOBILE LAYOUT (phones rotated sideways)
+   Height <= 500px + landscape orientation = phone on its side
+   ========================================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+
+  /* Compass: pinned right of the minimap (minimap ends at ~78px) */
+  .top-compass-container {
+    top: 4px;
+    gap: 2px;
+    left: 82px;           /* starts just after minimap right edge */
+    transform: none;       /* remove the centered translateX(-50%) */
+    max-width: calc(100vw - 82px - 160px); /* leave room for currency HUD on right */
+    align-items: flex-start;
+  }
+
+  .top-heading-pill {
+    padding: 2px 8px;
+    gap: 4px;
+  }
+
+  .top-heading-pill .heading-deg,
+  .top-heading-pill .heading-cardinal {
+    font-size: 0.72rem;
+  }
+
+  .top-heading-pill .heading-biome,
+  .top-heading-pill .heading-divider {
+    display: none;
+  }
+
+  .top-heading-pill .heading-speed-badge {
+    font-size: 0.58rem;
+    padding: 1px 5px;
+  }
+
+  .top-compass-bar { display: none; }
+
+  .top-right-currency-hud {
+    top: 4px;
+    right: 6px;
+  }
+
+  .currency-pill-card {
+    padding: 3px 7px;
+    gap: 5px;
+  }
+
+  /* Minimap: tiny dial top-left corner */
+  .left-minimap-card {
+    top: 4px;
+    left: 6px;
+    width: 60px;
+    padding: 3px 4px;
+    gap: 2px;
+    border-radius: 10px;
+  }
+
+  .minimap-header,
+  .minimap-footer,
+  .minimap-hint,
+  .minimap-coords,
+  .minimap-title { display: none; }
+
+  .minimap-dial {
+    width: 56px;
+    height: 56px;
+  }
+
+  .map-cardinal { font-size: 0.42rem; }
+
+  /* Profile card hidden in landscape — no room */
+  .bottom-left-profile { display: none; }
+
+  /* Joystick goes bottom-LEFT in landscape */
+  .right-touch-hud {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    right: unset;
+    left: 10px;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  /* Action buttons stacked vertically to the right of joystick */
+  .touch-actions-row {
+    flex-direction: column;
+    gap: 8px;
+    order: 2;
+  }
+
+  .touch-joystick-card { order: 1; }
+
+  .touch-action-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .joystick-base {
+    width: 100px;
+    height: 100px;
+  }
+
+  .joystick-inner-ring {
+    width: 60px;
+    height: 60px;
+  }
+
+  .joystick-hint { display: none; }
+  .crosshair { font-size: 16px; }
+
+  /* Toast: top-center to avoid blocking controls */
+  .pickup-toast {
+    bottom: unset;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: unset;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  /* Full-screen modals in landscape */
+  .full-map-modal {
+    width: 92vw;
+    height: 92vh;
+    max-width: 92vw;
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .map-viewport { height: calc(92vh - 90px); }
+
+  .map-modal-footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .exchange-modal {
+    width: 80vw;
+    max-height: 94vh;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .exchange-cards-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .exchange-trade-card {
+    min-width: 190px;
+    padding: 8px;
+  }
+}
+
+/* Rotate-to-landscape suggestion button (shown only in portrait on mobile) */
+.landscape-btn {
+  position: fixed;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: rgba(14, 28, 22, 0.92);
+  border: 1px solid rgba(255, 207, 112, 0.55);
+  border-radius: 999px;
+  color: #ffcf70;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+}
+
+.landscape-btn:active {
+  opacity: 0.65;
+  transform: translateX(-50%) scale(0.95);
+}
+
+@media (orientation: landscape) {
+  .landscape-btn { display: none; }
+}
